@@ -15,11 +15,11 @@
   user:
     name: "{{ pcmk_user }}"
     system: true
-    password: "{{ pcmk_password | password_hash('sha512', ansible_hostname) }}"
+    password: "{{ pcmk_password | password_hash('sha512') }}"
 
 - name: Authenticate all nodes
   command: >
-    pcs cluster auth
+    pcs host auth
     {{ ansible_play_batch | join(' ') }}
     -u {{ pcmk_user }}
     -p {{ pcmk_password | quote }}
@@ -30,7 +30,7 @@
 - name: Setup message bus
   run_once: true
   command: >
-    pcs cluster setup --name {{ pcmk_cluster_name | quote }}
+    pcs cluster setup --force {{ pcmk_cluster_name | quote }}
     {{  ansible_play_batch | join(' ') }}
     {%  for key, value in pcmk_votequorum.items() %}
     {%    if value is sameas(true) %}
